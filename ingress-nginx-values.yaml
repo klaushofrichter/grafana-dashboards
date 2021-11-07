@@ -1,0 +1,6 @@
+controller:
+  # adding a label to discover the pod by prometheus. That should be done better with a service monitor
+  podLabels:
+    prom: scrape
+  metrics:
+    enabled: true

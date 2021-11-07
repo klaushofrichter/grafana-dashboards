@@ -1,0 +1,93 @@
+grafana:
+  adminPassword: ${GRAFANA_PASS}
+  defaultDashboardsTimezone: America/Chicago
+  ingress:
+    enabled: true
+    hosts:
+      - localhost
+    path: /
+    ingressClassName: nginx
+
+prometheus:
+  ingress:
+    enabled: true
+    hosts:
+      - localhost
+    path: /prom
+    ingressClassName: nginx
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
+  tlsProxy.enabled: false
+  prometheusSpec:
+    routePrefix: /prom
+    scrapeInterval: "30s"
+    additionalScrapeConfigs:
+
+      - job_name: ingress-nginx-pods
+        scrape_interval: 15s
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: 10254
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - ingress-nginx
+            selectors:
+              - role: "pod"
+                label: "prom=scrape"
+
+      - job_name: ${APP}-pods
+        metrics_path: /service/metrics
+        scrape_interval: 60s
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - ${APP}
+            selectors:
+              - role: "pod"
+                label: "app=${APP}-pod"
+
+      - job_name: ${APP}-services
+        metrics_path: /service/metrics
+        scrape_interval: 60s
+        kubernetes_sd_configs:
+          - role: service
+            namespaces:
+              names:
+                - ${APP}
+            selectors:
+              - role: "service"
+                label: "app=${APP}"
+
+node-exporter:
+  serviceMonitor:
+    relabelings:
+      - action: replace
+        regex: (.*)
+        replacement: $1
+        sourceLabels:
+          - __meta_kubernetes_pod_node_name
+        targetLabel: kubernetes_node
+
+kubelet:
+  serviceMonitor:
+    metricRelabelings:
+      - action: replace
+        sourceLabels:
+          - node
+        targetLabel: instance
+
+kubeControllerManager:
+  enabled: false
+
+kubeEtcd:
+ enabled: false
+
+kubeScheduler:
+  enabled: false
+

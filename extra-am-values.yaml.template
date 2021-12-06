@@ -165,7 +165,7 @@ alertmanager:
       - source_match:
           severity: "medium"
         target_match_re:
-          severity: "(warnnig|low)"
+          severity: "(warning|low)"
         equal:
           - alertname
       - source_match:

@@ -1,6 +1,8 @@
 # customize the values below
 export HTTPPORT=8080
 export CLUSTER=mycluster
+export SERVERS=3
+export AGENTS=3
 export GRAFANA_PASS="operator"
 
 # SLACKWEBHOOK this is a URL like this: https://hooks.slack.com/services/DFE$$RFSFSZ/FSFRGRGRRQ/afsdfsjisjfijgsjdsfjfooj
